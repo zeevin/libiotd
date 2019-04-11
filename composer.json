@@ -1,0 +1,28 @@
+{
+  "name": "zeevin/libiotd",
+  "description": "smile iot protocol",
+  "type": "library",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "CaoKang",
+      "email": "caokang@outlook.com",
+      "homepage": "https://www.init.lu"
+    }
+  ],
+  "minimum-stability": "dev",
+  "require": {
+    "php": ">=7.1",
+    "guzzlehttp/guzzle": "~6.0",
+    "pimple/pimple": "^3.2",
+    "dusank/knapsack": "^10.0",
+    "predis/predis": "^1.1",
+    "symfony/http-foundation": "~3",
+    "doctrine/cache": "^1.8"
+  },
+  "autoload": {
+    "psr-4": {
+      "Zeevin\\Libiotd\\": "src/"
+    }
+  }
+}
