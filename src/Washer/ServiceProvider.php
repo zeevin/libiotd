@@ -22,5 +22,9 @@ class ServiceProvider implements ServiceProviderInterface
         {
             return new DownClient($app);
         };
+        $app['washer.up'] = function ($app)
+        {
+            return new UpClient($app);
+        };
     }
 }
