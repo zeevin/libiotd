@@ -47,25 +47,25 @@ class UpClient extends Upstream
     const WS_CONN_ERROR = 0x0D;
 
 
-    public function getWorkStatus($ws=null)
+    /**
+     * 获取洗衣机工作状态值
+     * @return int
+     * @throws \Zeevin\Libiotd\Core\Exception\LibdException
+     */
+    public function getWorkStatus() :int
     {
-        $status = [
-            self::WS_STANDBY => '空闲',
-            self::WS_RESERVATION =>'预约中',
-            self::WS_DISINFECTION =>'洁桶中',
-            self::WS_WORKING => '运行中',
-            self::WS_DONE =>'洗衣结束',
-            self::WS_SELF_TESTING =>'自检中',
-            self::WS_WATER_INJECTION_TIMEOUT =>'注水超时',
-            self::WS_WATER_DRAIN_TIMEOUT =>'排水超时',
-            self::WS_HIT =>'脱水时撞桶',
-            self::WS_COVER_OPEN =>'开盖报警',
-            self::WS_LEVEL_SENSOR_ERROR =>'水位传感器异常',
-            self::WS_OVERFLOWING =>'溢水',
-            self::WS_MOTOR_ERROR =>'电机故障',
-            self::WS_COIN_SIGNAL =>'收到投币信号',
-            self::WS_CONN_ERROR =>'通讯故障'
-        ];
-        return isset($ws) && array_key_exists($ws,$status)?$status[$ws]:$status;
+        $data = $this->getCoreData();
+        return $data[1];
+    }
+
+    /**
+     * 获取运行时间倒计时值，单位为分钟
+     * @return int
+     * @throws \Zeevin\Libiotd\Core\Exception\LibdException
+     */
+    public function getRemainingTime() :int
+    {
+        $data = $this->getCoreData();
+        return $data[2];
     }
 }
