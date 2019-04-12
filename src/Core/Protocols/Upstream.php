@@ -11,6 +11,7 @@
 namespace Zeevin\Libiotd\Core\Protocols;
 
 /**
+ * 指令上行解析基类
  * Class Upstream
  *
  * @package Zeevin\Libiotd\Core\Protocols

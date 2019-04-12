@@ -12,16 +12,16 @@ namespace Zeevin\Libiotd\Washer;
 
 
 use Zeevin\Libiotd\Core\Exception\LibdException;
+use Zeevin\Libiotd\Core\Protocols\Contracts\DownstreamInterface;
 use Zeevin\Libiotd\Core\Protocols\Downstream;
 
 /**
  * 洗衣机设备下行控制类
- * @link    https://www.init.lu
- * @author  Cao Kang(caokang@outlook.com)
  * Class DownClient
+ *
  * @package Zeevin\Libiotd\Washer
  */
-class DownClient extends Downstream
+class DownClient extends Downstream implements DownstreamInterface
 {
     //设备是否可预约
     const CAN_RESERVATION = true;
@@ -54,36 +54,43 @@ class DownClient extends Downstream
     /** @var int 自检 */
     const MODE_SELF_TEST = 0x06;
 
-    /** @var int 待机中 */
-    const WS_STANDBY = 0x00;
-    /** @var int 预约中 */
-    const WS_RESERVATION = 0x01;
-    /** @var int 洁桶中 */
-    const WS_DISINFECTION = 0x02;
-    /** @var int 正常洗衣中 */
-    const WS_WORKING = 0x03;
-    /** @var int 洗衣结束 */
-    const WS_DONE = 0x04;
-    /** @var int 自检中 */
-    const WS_SELF_TESTING = 0x05;
-    /** @var int 注水超时 */
-    const WS_WATER_INJECTION_TIMEOUT = 0x06;
-    /** @var int 排水超时 */
-    const WS_WATER_DRAIN_TIMEOUT = 0x07;
-    /** @var int 脱水时撞桶 */
-    const WS_HIT = 0x08;
-    /** @var int 开盖报警 */
-    const WS_COVER_OPEN = 0x09;
-    /** @var int 水位传感器异常 */
-    const WS_LEVEL_SENSOR_ERROR = 0x0A;
-    /** @var int 溢水 */
-    const WS_OVERFLOWING = 0x0B;
-    /** @var int 电机故障 */
-    const WS_MOTOR_ERROR = 0x0C;
-    /** @var int 收到投币信号 */
-    const WS_COIN_SIGNAL = 0xFE;
-    /** @var int 通讯故障 */
-    const WS_CONN_ERROR = 0x0D;
+
+    /**
+     * @param null $command
+     *
+     * @return mixed|null
+     */
+    public function expectedCommandMap($command = null)
+    {
+        /**
+         * key:下行的命令，value上行的
+         */
+        $maps = [
+            0x02 => 0x03,//下行工作指令，期望洗衣机上行工作中状态
+            0x03 => 0x01,//下行预约指令，期望洗衣机上行预约中状态
+            0x05 => 0x00,//下行取消预约指令，期望洗衣机上相待机中状态
+        ];
+
+        return array_key_exists($command,$maps)?$maps[$command]:null;
+    }
+
+    public function expectedModeMap($mode = null)
+    {
+        $maps = [
+            0x05 => 0x02, //下行，期望获得消毒清清洁中运行状态
+            0x06 => 0x05 //下行，期望获得洗衣机自检中运行状态
+        ];
+        return array_key_exists($mode,$maps)?$maps[$mode]:null;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getExpect()
+    {
+        return $this->expect;
+    }
+
 
     /**
      * 预约洗衣机
@@ -94,6 +101,7 @@ class DownClient extends Downstream
      */
     public function reserve(string $imei)
     {
+        $this->expect = $this->expectedCommandMap(self::COMMAND_RESERVE);
         return $this->setImei($imei)->buildCommand(self::COMMAND_RESERVE,0x00,0x00)->send();
     }
 
@@ -106,6 +114,7 @@ class DownClient extends Downstream
      */
     public function cancelReserve(string $imei)
     {
+        $this->expect = $this->expectedCommandMap(self::COMMAND_RESERVE_CANCEL);
         return $this->setImei($imei)->buildCommand(self::COMMAND_RESERVE_CANCEL,0x00,0x00)->send();
     }
 
@@ -122,6 +131,7 @@ class DownClient extends Downstream
         if (is_array($this->getMode($mode)))
             throw new LibdException('mode not exist');
 
+        $this->expect = $this->expectedModeMap($mode)??$this->expectedCommandMap(self::COMMAND_WORK);
         return $this->setImei($imei)->buildCommand(self::COMMAND_WORK,$mode,0x00)->send();
     }
 
