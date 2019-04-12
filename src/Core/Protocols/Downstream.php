@@ -108,7 +108,7 @@ abstract class Downstream
         if (!$this->command)
             throw new LibdException('command not set');
         $queue = $this->app['queue'];
-        $queue->lpush($this->imei.'_out', $this->command);
+        $queue->lpush($this->imei.$this->app['config']->get('downstream')['queue_id_suffix'], $this->command);
         return $this;
     }
 }
