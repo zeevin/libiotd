@@ -29,6 +29,7 @@ abstract class Downstream
      * @var string
      */
     protected $imei;
+    protected $queue_id;
     /**
      * @var integer
      */
@@ -64,9 +65,10 @@ abstract class Downstream
      *
      * @return $this
      */
-    protected function setImei(string $imei)
+    protected function setImei(string $imei,string $queue_id)
     {
         $this->imei = $imei;
+        $this->queue_id = $queue_id;
         return $this;
     }
 
@@ -108,7 +110,7 @@ abstract class Downstream
         if (!$this->command)
             throw new LibdException('command not set');
         $queue = $this->app['queue'];
-        $queue->lpush($this->imei.$this->app['config']->get('downstream')['queue_id_suffix'], $this->command);
+        $queue->lpush($this->queue_id,$this->imei.' '.$this->command);
         return $this;
     }
 }

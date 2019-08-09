@@ -93,46 +93,49 @@ class DownClient extends Downstream implements DownstreamInterface
 
 
     /**
-     * 预约洗衣机
+     * 预约
      * @param string $imei
+     * @param string $queue_id
      *
      * @return DownClient
      * @throws LibdException
      */
-    public function reserve(string $imei)
+    public function reserve(string $imei,string $queue_id)
     {
         $this->expect = $this->expectedCommandMap(self::COMMAND_RESERVE);
-        return $this->setImei($imei)->buildCommand(self::COMMAND_RESERVE,0x00,0x00)->send();
+        return $this->setImei($imei,$queue_id)->buildCommand(self::COMMAND_RESERVE,0x00,0x00)->send();
     }
 
     /**
-     * 取消洗衣机预约
+     * 取消预约
      * @param string $imei
+     * @param string $queue_id
      *
      * @return DownClient
      * @throws LibdException
      */
-    public function cancelReserve(string $imei)
+    public function cancelReserve(string $imei,string $queue_id)
     {
         $this->expect = $this->expectedCommandMap(self::COMMAND_RESERVE_CANCEL);
-        return $this->setImei($imei)->buildCommand(self::COMMAND_RESERVE_CANCEL,0x00,0x00)->send();
+        return $this->setImei($imei,$queue_id)->buildCommand(self::COMMAND_RESERVE_CANCEL,0x00,0x00)->send();
     }
 
     /**
-     * 发起洗衣机工作指令
+     * 发起工作指令
      * @param string $imei 设备imei
      * @param int    $mode 工作模式
+     * @param string $queue_id
      *
      * @return DownClient
      * @throws LibdException
      */
-    public function start(string $imei,int $mode)
+    public function start(string $imei,int $mode,string $queue_id)
     {
         if (is_array($this->getMode($mode)))
             throw new LibdException('mode not exist');
 
         $this->expect = $this->expectedModeMap($mode)??$this->expectedCommandMap(self::COMMAND_WORK);
-        return $this->setImei($imei)->buildCommand(self::COMMAND_WORK,$mode,0x00)->send();
+        return $this->setImei($imei,$queue_id)->buildCommand(self::COMMAND_WORK,$mode,0x00)->send();
     }
 
     /**
